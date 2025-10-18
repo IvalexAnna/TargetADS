@@ -1,4 +1,3 @@
-text
 # 📚 Book Database API
 
 ![Python](https://img.shields.io/badge/Python-3.12+-blue?logo=python)
@@ -8,25 +7,24 @@ text
 ![Docker](https://img.shields.io/badge/Docker-✓-blue?logo=docker)
 ![Pydantic](https://img.shields.io/badge/Pydantic-v2-purple)
 
-[translate:REST API для управления книгами, жанрами и участниками (авторы, редакторы, иллюстраторы) с полной CRUD функциональностью, фильтрацией и пагинацией.]
+REST API для управления книгами, жанрами и участниками (авторы, редакторы, иллюстраторы) с полной CRUD функциональностью, фильтрацией и пагинацией.
 
 ---
 
 ## 🏗 Архитектура
 
-book-api/
+TargetADS/
 ├── api/
-│ ├── core/ # Конфигурация и подключение к БД
-│ ├── endpoints/ # Роутеры API
-│ └── schemas/ # Pydantic модели
-├── scripts/
-│ ├── import_genres.py # Импорт жанров
-│ └── seed_data.py # Тестовые данные
-├── tests/ # Тесты (pytest)
-├── main.py # Точка входа FastAPI
-└── docker-compose.yml # Docker конфигурация
-
-text
+│ ├── core/         # Конфигурация и подключение к БД
+│ ├── endpoints/    # Роутеры API
+│ ├── schemas/      # Pydantic модели
+│ └── scripts/      # Импорт жанров и тестовые данные
+├── tests/          # Тесты (pytest)
+├── main.py         # Точка входа FastAPI
+├── docker-compose.yml # Docker конфигурация
+├── Dockerfile
+├── pyproject.toml
+└── .env.example
 
 ---
 
@@ -36,41 +34,60 @@ text
 
 Клонируйте репозиторий
 git clone git@github.com:IvalexAnna/TargetADS.git
-cd book-api
+cd TargetADS
+
+Скопируйте переменные окружения
+cp .env.example .env
 
 Запустите приложение
 docker-compose up --build -d
 
-Приложение будет доступно по http://localhost:8000
-Документация API: http://localhost:8000/docs
-text
+Приложение: http://localhost:8000
+Документация: http://localhost:8000/docs
+PostgreSQL: localhost:5433 (внешний порт)
 
 ### Локальный запуск
 
-Установите зависимости
-uv sync
+Создайте виртуальное окружение и установите зависимости
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+или
+pip install fastapi uvicorn[standard] sqlalchemy psycopg2-binary pydantic pydantic-settings
 
-Настройте переменные окружения (создайте .env файл)
+Настройте переменные окружения
 cp .env.example .env
+(для локального запуска укажите POSTGRES_HOST=localhost и POSTGRES_PORT=5433)
+
+Опционально запустите БД
+docker-compose up -d db
 
 Запустите приложение
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
-
-text
 
 ---
 
 ## ⚙️ Конфигурация
 
-Создайте файл `.env` в корне проекта со следующим содержимым:
+Файл `.env` в корне проекта. Образец — `.env.example`.
+
+Для Docker Compose (в контейнере API):
+
+POSTGRES_DB=book_db
+POSTGRES_USER=change_me
+POSTGRES_PASSWORD=password
+POSTGRES_HOST=db
+POSTGRES_PORT=5432
+
+Для локального запуска (внешний доступ к БД):
 
 POSTGRES_DB=book_db
 POSTGRES_USER=postgres
-POSTGRES_PASSWORD=password
+POSTGRES_PASSWORD=change_me
 POSTGRES_HOST=localhost
-POSTGRES_PORT=5432
+POSTGRES_PORT=5433
 
-text
+Переменная `PYTHONPATH` настраивается в Compose и Dockerfile.
 
 ---
 
@@ -82,30 +99,17 @@ text
 
 curl -X GET "http://localhost:8000/api/v1/books?page=1&page_size=10&sort=rating&order=desc&q=ring"
 
-text
-
 Ответ:
 
-{
-"items": [
+[
 {
 "id": "uuid",
 "title": "The Lord of the Rings",
 "rating": 9.5,
 "description": "Epic fantasy novel",
-"published_year": 1954,
-"genres": [{"id": "uuid", "name": "Fantasy"}],
-"contributors": [{"id": "uuid", "full_name": "J.R.R. Tolkien", "role": "author"}],
-"created_at": "2024-01-01T00:00:00Z",
-"updated_at": "2024-01-01T00:00:00Z"
+"published_year": 1954
 }
-],
-"total": 1,
-"page": 1,
-"page_size": 10
-}
-
-text
+]
 
 #### Создать книгу
 
@@ -122,7 +126,6 @@ curl -X POST "http://localhost:8000/api/v1/books"
 ]
 }'
 
-text
 
 #### Обновить книгу
 
@@ -130,13 +133,11 @@ curl -X PUT "http://localhost:8000/api/v1/books/<book_id>"
 -H "Content-Type: application/json"
 -d '{"title": "Updated Book Title", "rating": 9.0}'
 
-text
+}
 
 #### Удалить книгу
 
 curl -X DELETE "http://localhost:8000/api/v1/books/<book_id>"
-
-text
 
 ---
 
@@ -146,15 +147,11 @@ text
 
 curl -X GET "http://localhost:8000/api/v1/genres"
 
-text
-
 #### Создать жанр
 
 curl -X POST "http://localhost:8000/api/v1/genres"
 -H "Content-Type: application/json"
 -d '{"name": "Fantasy"}'
-
-text
 
 ---
 
@@ -164,15 +161,11 @@ text
 
 curl -X GET "http://localhost:8000/api/v1/contributors"
 
-text
-
 #### Создать участника
 
 curl -X POST "http://localhost:8000/api/v1/contributors"
 -H "Content-Type: application/json"
 -d '{"full_name": "J.K. Rowling"}'
-
-text
 
 ---
 
@@ -180,13 +173,9 @@ text
 
 curl -X GET "http://localhost:8000/api/ping"
 
-text
-
 Ответ:
 
 {"status": "ok"}
-
-text
 
 ---
 
@@ -218,18 +207,20 @@ text
 ### Импорт жанров
 
 Импорт из CSV
-docker-compose exec api python scripts/import_genres.py genres.csv
+docker-compose exec api python api/scripts/import_genres.py genres.csv
 
 Импорт из JSON с другим размером батча
-BATCH_SIZE=50 python scripts/import_genres.py genres.json
-
-text
+BATCH_SIZE=50 docker-compose exec api python api/scripts/import_genres.py genres.json
 
 ### Заполнение тестовыми данными
 
-docker-compose exec api python scripts/seed_data.py
+docker-compose exec api python api/scripts/seed_data.py
 
-text
+## 🧪 Тесты
+
+- Локально: `pytest -q`
+- В контейнере: `docker-compose exec api pytest -q`
+- Основные тесты: `first_task/test_first_task.py`, `tests/tests_second_task.py`
 
 ---
 
@@ -279,29 +270,28 @@ text
 ## 🚧 Что можно улучшить
 
 При большем дедлайне я бы добавила:
-
-- Тесты — pytest для всех endpoint'ов и функций  
+С точки зрения проекта:
+- Настройка административной панели — FastAPI-Admin для управления данными
 - Аутентификация — JWT tokens для защиты API  
-- Кэширование — Redis для часто запрашиваемых данных  
+- 
 - Поиск — полнотекстовый поиск по книгам  
-- Документация — OpenAPI с примерами для всех параметров  
-- Мониторинг — Prometheus метрики и логирование  
-- Миграции — Alembic для управления изменениями схемы  
-- Фоновая обработка — Celery для тяжелых операций (импорт)  
 
+С точки зрения архитектуры:
+- Настройка CI/CD — GitHub Actions для автоматизации тестов и деплоя  
+- Тесты — pytest для всех endpoint'ов и функций
+- Миграции — Alembic для управления изменениями схемы  
+- Фоновая обработка — Celery для тяжелых операций (импорт)
+
+Документация — OpenAPI с примерами для всех параметров  
+Мониторинг — Prometheus метрики и логирование 
 ---
 
 ## 👩‍💻 Автор
 
 **Анна Иванова**
 
-[translate:Разработано в рамках тестового задания для TargetADS.] 🚀
+Разработано в рамках тестового задания для TargetADS. 🚀
 
-| Платформа | Ссылка                                  | Иконка |
-|-----------|----------------------------------------|--------|
-| **Email**   | [ivalex.anna@gmail.com](mailto:ivalex.anna@gmail.com)     | 📧     |
-| **Telegram**| [@IvalexAnna](https://t.me/IvalexAnna)                   | 📱     |
-| **GitHub**  | [IvalexAnna](https://github.com/IvalexAnna)              | 🐙     |
 
 [![Email](https://img.shields.io/badge/Email-ivalex.anna@gmail.com-red?logo=gmail)](mailto:ivalex.anna@gmail.com)
 [![Telegram](https://img.shields.io/badge/Telegram-@IvalexAnna-blue?logo=telegram)](https://t.me/IvalexAnna)
