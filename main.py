@@ -24,7 +24,7 @@ async def root():
     return {"message": "Book Database API"}
 
 
-@app.get("/api/ping")
+@app.get("/api/ping", tags=["health"])
 async def health_check():
     """Health check endpoint."""
-    return {"status": "healthy"}
+    return {"status": "ok"}
