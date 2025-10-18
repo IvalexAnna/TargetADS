@@ -1,3 +1,4 @@
+from api.core.database import RoleEnum
 from pydantic import BaseModel, condecimal, conint
 from typing import Optional, List
 from datetime import datetime
@@ -32,9 +33,20 @@ class BookBase(BaseModel):
     published_year: Optional[conint(ge=1450, le=2100)] = None
 
 
+class ContributorRole(BaseModel):
+    """Schema for book-contributor relationship."""
+    contributor_id: uuid.UUID
+    role: RoleEnum
+
+    class Config:
+        """Pydantic config."""
+        from_attributes = True
+
+
 class BookCreate(BookBase):
     """Schema for creating a book."""
     genre_ids: Optional[List[uuid.UUID]] = None
+    contributors: Optional[List[ContributorRole]] = None
 
 
 class BookUpdate(BaseModel):
@@ -44,12 +56,23 @@ class BookUpdate(BaseModel):
     description: Optional[str] = None
     published_year: Optional[conint(ge=1450, le=2100)] = None
     genre_ids: Optional[List[uuid.UUID]] = None
+    contributors: Optional[List[ContributorRole]] = None
+
+
+class ContributorResponse(ContributorBase):
+    """Schema for contributor response with role."""
+    role: RoleEnum
+
+    class Config:
+        """Pydantic config."""
+        from_attributes = True
 
 
 class BookResponse(BookBase):
     """Schema for book response."""
     id: uuid.UUID
     genres: List[GenreBase] = []
+    contributors: List[ContributorResponse] = []
     created_at: datetime
     updated_at: datetime
 
@@ -72,9 +95,3 @@ class GenreResponse(GenreBase):
 class ContributorCreate(BaseModel):
     """Schema for creating a contributor."""
     full_name: str
-
-
-class ContributorResponse(ContributorBase):
-    """Schema for contributor response."""
-    created_at: datetime
-    updated_at: datetime

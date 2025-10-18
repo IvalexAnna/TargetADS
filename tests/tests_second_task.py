@@ -2,11 +2,27 @@
 import pytest
 from fastapi.testclient import TestClient
 import uuid
-
+import requests
+import json
 from main import app
 
 client = TestClient(app)
+BASE_URL = "http://localhost:8000"
 
+# Health check
+response = requests.get(f"{BASE_URL}/api/ping")
+print("Health check:", response.json())
+
+# Получить книги с фильтрацией
+params = {
+    "page": 1,
+    "page_size": 10,
+    "sort": "rating",
+    "order": "desc",
+    "q": "ring"
+}
+response = requests.get(f"{BASE_URL}/api/v1/books", params=params)
+print("Books with filters:", response.json())
 
 def test_create_book():
     """Test creating a book."""

@@ -16,10 +16,11 @@ services:
     volumes:
       - .:/app
     command: >
-      sh -c "sleep 5 && 
+      sh -c "sleep 10 && 
+             python   api/scripts/seed_data.py &&
              uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/ping"]
       interval: 30s
       timeout: 10s
       retries: 3
