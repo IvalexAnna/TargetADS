@@ -1,11 +1,18 @@
-FROM python:3.10-slim
+FROM python:3.12-slim
+
+# Устанавливаем curl для healthcheck
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
+ENV PYTHONPATH=/app
 
-COPY pyproject.toml .
+RUN pip install --no-cache-dir uv
+COPY pyproject.toml uv.lock ./
 
-RUN pip install --no-cache-dir -e .
+# Устанавливаем зависимости через uv
+RUN uv pip install --system .
 
 COPY . .
 
-CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+EXPOSE 8000
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
