@@ -1,9 +1,12 @@
-from typing import Callable, Iterable, Optional, List, Dict
 from collections import Counter
+from typing import Callable, Dict, Iterable, List, Optional
 
 NUMBER_OF_ROWS: int = 80_000
 
-def get_first_matching_object(predicate: Callable[[object], bool], objects: Optional[Iterable[object]] = None) -> Optional[object]:
+
+def get_first_matching_object(
+    predicate: Callable[[object], bool], objects: Optional[Iterable[object]] = None
+) -> Optional[object]:
     """
     Возвращает первый объект из iterable, удовлетворяющий условию predicate.
     Если таких объектов нет, возвращает None.
@@ -21,6 +24,7 @@ def get_first_matching_object(predicate: Callable[[object], bool], objects: Opti
         if predicate(obj):
             return obj
     return None
+
 
 def word_statistics(lines: List[str]) -> Dict[str, int]:
     """
@@ -45,4 +49,3 @@ def word_statistics(lines: List[str]) -> Dict[str, int]:
 
     sorted_stat = dict(sorted(freq.items(), key=lambda x: (-x[1], x[0])))
     return sorted_stat
-
