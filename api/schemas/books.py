@@ -1,32 +1,47 @@
-from api.core.database import RoleEnum
-from pydantic import BaseModel, condecimal, conint
+from pydantic import BaseModel, condecimal, conint, ConfigDict
 from typing import Optional, List
 from datetime import datetime
 import uuid
+from pydantic import field_serializer
+from decimal import Decimal
+from api.core.database import RoleEnum
 
 
 class GenreBase(BaseModel):
-    """Base genre schema."""
+    """Базовая схема жанра.
+    
+    Атрибуты:
+        id: UUID идентификатор жанра.
+        name: Название жанра.
+    """
     id: uuid.UUID
     name: str
 
-    class Config:
-        """Pydantic config."""
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ContributorBase(BaseModel):
-    """Base contributor schema."""
+    """Базовая схема участника.
+    
+    Атрибуты:
+        id: UUID идентификатор участника.
+        full_name: Полное имя участника.
+    """
     id: uuid.UUID
     full_name: str
 
-    class Config:
-        """Pydantic config."""
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class BookBase(BaseModel):
-    """Base book schema."""
+    """Базовая схема книги.
+    
+    Атрибуты:
+        title: Название книги.
+        rating: Рейтинг книги от 0.0 до 10.0.
+        description: Описание книги.
+        published_year: Год публикации от 1450 до 2100.
+    """
     title: str
     rating: Optional[condecimal(ge=0.0, le=10.0)] = None
     description: Optional[str] = None
@@ -34,23 +49,40 @@ class BookBase(BaseModel):
 
 
 class ContributorRole(BaseModel):
-    """Schema for book-contributor relationship."""
+    """Схема для связи книги и участника с ролью.
+    
+    Атрибуты:
+        contributor_id: UUID идентификатор участника.
+        role: Роль участника в создании книги.
+    """
     contributor_id: uuid.UUID
     role: RoleEnum
 
-    class Config:
-        """Pydantic config."""
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class BookCreate(BookBase):
-    """Schema for creating a book."""
+    """Схема для создания книги.
+    
+    Атрибуты:
+        genre_ids: Список UUID идентификаторов жанров.
+        contributors: Список участников с их ролями.
+    """
     genre_ids: Optional[List[uuid.UUID]] = None
     contributors: Optional[List[ContributorRole]] = None
 
 
 class BookUpdate(BaseModel):
-    """Schema for updating a book."""
+    """Схема для обновления книги.
+    
+    Атрибуты:
+        title: Название книги.
+        rating: Рейтинг книги от 0.0 до 10.0.
+        description: Описание книги.
+        published_year: Год публикации от 1450 до 2100.
+        genre_ids: Список UUID идентификаторов жанров.
+        contributors: Список участников с их ролями.
+    """
     title: Optional[str] = None
     rating: Optional[condecimal(ge=0.0, le=10.0)] = None
     description: Optional[str] = None
@@ -60,38 +92,63 @@ class BookUpdate(BaseModel):
 
 
 class ContributorResponse(ContributorBase):
-    """Schema for contributor response with role."""
+    """Схема ответа для участника с ролью.
+    
+    Атрибуты:
+        role: Роль участника в конкретной книге.
+    """
     role: RoleEnum
 
-    class Config:
-        """Pydantic config."""
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class BookResponse(BookBase):
-    """Schema for book response."""
+    """Схема ответа для книги.
+    
+    Атрибуты:
+        id: UUID идентификатор книги.
+        genres: Список жанров книги.
+        contributors: Список участников с их ролями.
+        created_at: Временная метка создания записи.
+        updated_at: Временная метка последнего обновления записи.
+    """
     id: uuid.UUID
     genres: List[GenreBase] = []
     contributors: List[ContributorResponse] = []
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        """Pydantic config."""
-        from_attributes = True
-
+    model_config = ConfigDict(from_attributes=True)
+    
+    @field_serializer('rating')
+    def serialize_rating(self, rating: Decimal) -> float:
+        """Конвертировать Decimal в float для JSON-сериализации."""
+        return float(rating)
 
 class GenreCreate(BaseModel):
-    """Schema for creating a genre."""
+    """Схема для создания жанра.
+    
+    Атрибуты:
+        name: Название жанра.
+    """
     name: str
 
 
 class GenreResponse(GenreBase):
-    """Schema for genre response."""
+    """Схема ответа для жанра.
+    
+    Атрибуты:
+        created_at: Временная метка создания записи.
+        updated_at: Временная метка последнего обновления записи.
+    """
     created_at: datetime
     updated_at: datetime
 
 
 class ContributorCreate(BaseModel):
-    """Schema for creating a contributor."""
+    """Схема для создания участника.
+    
+    Атрибуты:
+        full_name: Полное имя участника.
+    """
     full_name: str

@@ -1,5 +1,11 @@
 """Fill database with test data."""
 import uuid
+import sys
+import os
+
+# Добавляем корневую директорию в путь
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
@@ -15,6 +21,15 @@ def fill_database():
     db = Session(engine)
 
     try:
+        # Check if data already exists
+        existing_books_count = db.query(Book).count()
+        existing_genres_count = db.query(Genre).count()
+        existing_contributors_count = db.query(Contributor).count()
+        
+        if existing_books_count > 0 or existing_genres_count > 0 or existing_contributors_count > 0:
+            print("Database already contains data. Skipping seed operation.")
+            return
+
         # Create genres
         horror = Genre(id=uuid.uuid4(), name="Horror")
         adventure = Genre(id=uuid.uuid4(), name="Adventure")
@@ -97,6 +112,7 @@ def fill_database():
     except Exception as e:
         print(f"Error: {e}")
         db.rollback()
+        raise
     finally:
         db.close()
 

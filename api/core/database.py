@@ -1,7 +1,7 @@
 """Database configuration and models."""
 import uuid
 from sqlalchemy import Column, String, Integer, DECIMAL, Text, DateTime, ForeignKey, Enum, Table, CheckConstraint
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.sql import func
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy import create_engine
