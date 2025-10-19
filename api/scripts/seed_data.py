@@ -1,9 +1,8 @@
-"""Fill database with test data."""
 import uuid
 import sys
 import os
 
-# Добавляем корневую директорию в путь
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from sqlalchemy import create_engine
@@ -14,14 +13,20 @@ from api.core.config import settings
 
 
 def fill_database():
-    """Add test books, genres and contributors."""
+    """Добавляет тестовые данные в базу данных.
+    
+    Создает тестовые книги, жанры и контрибьюторов с установленными связями.
+    Проверяет наличие данных перед заполнением чтобы избежать дублирования.
+    
+    Raises:
+        Exception: Если произошла ошибка при добавлении данных
+    """
     print("Adding test data to database...")
 
     engine = create_engine(settings.database_url)
     db = Session(engine)
 
     try:
-        # Check if data already exists
         existing_books_count = db.query(Book).count()
         existing_genres_count = db.query(Genre).count()
         existing_contributors_count = db.query(Contributor).count()
@@ -30,7 +35,6 @@ def fill_database():
             print("Database already contains data. Skipping seed operation.")
             return
 
-        # Create genres
         horror = Genre(id=uuid.uuid4(), name="Horror")
         adventure = Genre(id=uuid.uuid4(), name="Adventure")
         thriller = Genre(id=uuid.uuid4(), name="Thriller")
@@ -39,7 +43,6 @@ def fill_database():
         db.add_all([horror, adventure, thriller, historical])
         db.commit()
 
-        # Create contributors
         king = Contributor(id=uuid.uuid4(), full_name="Stephen King")
         crouch = Contributor(id=uuid.uuid4(), full_name="Blake Crouch")
         brown = Contributor(id=uuid.uuid4(), full_name="Dan Brown")
@@ -47,7 +50,6 @@ def fill_database():
         db.add_all([king, crouch, brown])
         db.commit()
 
-        # Create books
         books = [
             Book(
                 id=uuid.uuid4(),
@@ -82,7 +84,6 @@ def fill_database():
         db.add_all(books)
         db.commit()
 
-        # Connect books with genres
         db.execute(book_genre.insert().values(
             book_id=books[0].id, genre_id=horror.id))
         db.execute(book_genre.insert().values(
@@ -92,7 +93,6 @@ def fill_database():
         db.execute(book_genre.insert().values(
             book_id=books[3].id, genre_id=historical.id))
 
-        # Connect books with contributors
         db.execute(book_contributor.insert().values(
             book_id=books[0].id, contributor_id=king.id, role=RoleEnum.author
         ))

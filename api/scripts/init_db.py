@@ -1,4 +1,3 @@
-"""Initialize database tables."""
 import sys
 import os
 
@@ -7,7 +6,15 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(
 from api.core.database import Base, engine
 
 def init_database():
-    """Create all tables."""
+    """Создает все таблицы в базе данных на основе моделей SQLAlchemy.
+    
+    Функция использует метаданные из Base для создания таблиц,
+    определенных в моделях приложения. Выполняется при первом запуске
+    или при необходимости пересоздания структуры БД.
+    
+    Raises:
+        Exception: Если произошла ошибка при создании таблиц
+    """
     print("Creating database tables...")
     Base.metadata.create_all(bind=engine)
     print("Tables created successfully!")

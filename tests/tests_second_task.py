@@ -139,18 +139,14 @@ class TestBookWithRelationships:
     
     def test_create_book_with_genres_and_contributors(self):
         """CREATE книга с жанрами и контрибьюторами"""
-        # Используем уникальные имена для жанров и контрибьюторов
         unique_id = str(uuid.uuid4())[:8]
 
-        # Создаем жанры с уникальными именами
         genre1 = client.post("/api/v1/genres", json={"name": f"Fantasy_{unique_id}"}).json()
         genre2 = client.post("/api/v1/genres", json={"name": f"Adventure_{unique_id}"}).json()
 
-        # Создаем контрибьюторов с уникальными именами
         author = client.post("/api/v1/contributors", json={"full_name": f"Test Author_{unique_id}"}).json()
         editor = client.post("/api/v1/contributors", json={"full_name": f"Test Editor_{unique_id}"}).json()
 
-        # Создаем книгу со связями
         book_data = {
             "title": f"Complete Book_{unique_id}",
             "rating": 9.0,

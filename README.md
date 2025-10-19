@@ -7,7 +7,7 @@
 ![Docker](https://img.shields.io/badge/Docker-✓-blue?logo=docker)
 ![Pydantic](https://img.shields.io/badge/Pydantic-v2-purple)
 
-REST API для управления книгами, жанрами и участниками (авторы, редакторы, иллюстраторы) с полной CRUD функциональностью, фильтрацией и пагинацией.
+REST API для управления книгами, жанрами и участниками (авторы, редакторы, иллюстраторы) с полной CRUD функциональностью,сортировкой, фильтрацией и пагинацией.
 
 ---
 
@@ -55,7 +55,7 @@ docker-compose up --build -d
 ```bash
 Приложение: http://localhost:8000
 Документация: http://localhost:8000/docs
-PostgreSQL: localhost:5433
+PostgreSQL: localhost:5432
 ```
 ### Локальный запуск
 Установите uv
@@ -127,7 +127,7 @@ POSTGRES_DB=book_db
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=change_me
 POSTGRES_HOST=localhost
-POSTGRES_PORT=5433
+POSTGRES_PORT=5432
 ```
 Переменная `PYTHONPATH` настраивается в Compose и Dockerfile.
 
@@ -273,9 +273,7 @@ docker-compose exec api python api/scripts/seed_data.py
 
 ## 🧪 Тесты
 
-- Локально: `pytest -q`
-- В контейнере: `docker-compose exec api pytest -q`
-- Основные тесты: `first_task/test_first_task.py`, `tests/tests_second_task.py`
+- Основные тесты: `docker-compose exec api python -m pytest first_task/test_first_task.py -v`, `docker-compose exec api python -m pytest tests/tests_second_task.py -v`
 
 ---
 
