@@ -55,17 +55,43 @@ docker-compose up --build -d
 ```bash
 Приложение: http://localhost:8000
 Документация: http://localhost:8000/docs
-PostgreSQL: localhost:5433 (внешний порт)
+PostgreSQL: localhost:5433
 ```
 ### Локальный запуск
-
-Создайте виртуальное окружение и установите зависимости
+Установите uv
 ```bash
-python -m venv .venv
+pip install uv
+```
+Альтернативный вариант:
+
+На Windows через PowerShell:
+```bash
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+На macOS и Linux через curl:
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+Установка Python 3.12 (Если есть необходимость)
+```bash
+uv python install 3.12
+```
+Создайте виртуальное окружение 
+```bash
+uv venv --python 3.12
+```
+Установите зависимости
+На Linux/macOS:
+```bash
+source .venv/bin/activate
+```
+На Windows PowerShell:
+```bash
 .venv\Scripts\activate
-pip install -r requirements.txt
-или
-pip install fastapi uvicorn[standard] sqlalchemy psycopg2-binary pydantic pydantic-settings
+```
+Чтобы синхронизировать зависимости из pyproject.toml:
+```bash
+uv sync
 ```
 Настройте переменные окружения
 ```bash
